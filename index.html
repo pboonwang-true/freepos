@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+    <head        dsdsdsdsdsdsdsdsdsdsd  >
+        <meta charset="UTF-8">
+        <meta name="description" content="text/html; charset=utf-8">
+        <!--mimeMap fileExtension=".json" mimeType="application/json" /-->
+        <title>Free POS v.63.2</title>
+        <!--<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>-->
+        <link rel = "icon" href ="iconfree3.png" type = "image/x-icon">
+        <link href="./bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="./css/css.css" rel="stylesheet">
+        <script src="./js/jquery.min.js"></script>
+        <script src="./bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src = "./js/angular157.min.js"></script>
+<script>
+
+/*
+var app = angular.module('AngApp', ['ngResource', 'ngCookies']);
+
+app.service('translationService', function($resource) {
+	    this.getTranslation = function($scope, language) {
+	        var langPath = './js/' + language + '.json';
+	        $resource(langPath).get(function (data) {
+	            $scope.la = data;
+	        });
+	    };
+});
+*/
+angular.module('AngApp',[]).controller("itemController", function($scope,$http){
+    $scope.loged = false;
+    $scope.items = [];
+    $scope.itemData = {};
+    $scope.userty = 0;
+    $scope.shopname = '';
+
+    //translationService.getTranslation($scope, 'th');
+    
+    $scope.Setlang = function(x){
+        $http.get( './lang/'+x+'.json', {
+        }).success(function(res){
+            $scope.la = res;            
+        });
+    }
+    $scope.Setlang('th');
+
+    // function to get records from the database
+    $scope.getitems = function(){
+        $http.get('action.php', {
+            params:{
+                'type':'view'
+            }
+        }).success(function(res){
+            if(res.status == 'OK'){
+                $scope.items = res.records;
+            }
+        });
+    };
+    
+    // function to insert or update item data to the database
+    $scope.saveitem = function(type){
+        var data = $.param({
+            'data':$scope.itemData,
+            'type':type
+        });
+        var config = {
+            headers : {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+            }
+        };
+        $http.post("action.php", data, config).success(function(res){
+            if(res.status == 'OK'){
+                if(type == 'edit'){
+                    $scope.items[$scope.index].item_id = $scope.itemData.item_id;
+                    $scope.items[$scope.index].item_name = $scope.itemData.item_name;
+                    $scope.items[$scope.index].item_code = $scope.itemData.item_code;
+                    $scope.items[$scope.index].item_price = $scope.itemData.item_price;
+                    $scope.items[$scope.index].add_date = $scope.itemData.add_date;
+                }else{
+                    
+                    $scope.items.push({
+                        item_id: res.data.item_id,                        
+                        item_name: res.data.item_name,
+                        item_price: res.data.item_price,
+                        item_code: res.data.item_code
+                    });
+                    
+                }
+                $scope.itemForm.$setPristine();
+                $scope.tempitemData = {};
+                $('.formData').slideUp();
+                alert(res.msg);
+            }else{
+                alert(res.msg);            
+            }
+        });
+    };
+    
+    // function to add item data
+    $scope.additem = function(){
+        $scope.saveitem('add');
+    };
+    
+    // function to edit item data
+    $scope.edititem = function(items){
+        $scope.itemData = {
+            item_id: items.item_id,
+            item_name: items.item_name,
+            item_code: items.item_code,
+            item_price: items.item_price,
+            add_date: items.add_date
+        };
+        $scope.index = $scope.items.indexOf(items);
+        $('.formData').slideDown();
+    };
+    
+    // function to update item data
+    $scope.updateitem = function(){
+        $scope.saveitem('edit');
+    };
+    
+    // function to delete item data from the database
+    $scope.deleteitem = function(item){
+        var conf = confirm('Are you sure to delete the item?');
+        if(conf === true){
+            var data = $.param({
+                'item_id': item.item_id,
+                'type':'delete'    
+            });
+            
+            var config = {
+                headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                }    
+            };
+            $http.post("action.php",data,config).success(function(res){
+                if(res.status == 'OK'){
+                    var index = $scope.items.indexOf(item);
+                    $scope.items.splice(index,1);
+                    alert(res.msg);
+                }else{
+                    alert(res.msg);
+                }
+            });
+        }
+    };
+
+    $scope.Tog = function(nam){
+        $('#'+nam).toggle();
+    }
+    
+    $scope.Setlog = function(u){
+        
+        if (u){
+            var data = $.param({
+                'data': $scope.u,
+                'type':'login'    
+            });
+            
+            var config = { headers : {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'} };
+
+            //$http.get("action.php", { params:{'data': $scope.u, 'type':'login' }
+            //}).success(function(res){                
+            $http.post("action.php", data,config 
+            ).success(function(res){                
+                if(res.status == 'OK'){                   
+                    $scope.loged=true;
+                    $scope.userty = res.msg.usertype;
+                    $scope.shopname =res.msg.shopname ;
+                    $scope.username =res.msg.username ;                    
+                    $scope.u.sho='';
+                    $scope.u.nam='';
+                    $scope.u.pas='';
+                    $('#log').toggle();
+                }else{
+                    alert(res.msg);
+                }
+            });
+        }else{
+            $scope.loged=u;
+            $scope.shopname ='';
+            $scope.username =''; 
+            $http.get("action.php", { params:{'type':'logout' }});
+        }
+    }
+
+    $scope.Passenter = function(kcode){
+        if (kcode==13) $scope.Setlog(true);
+    }
+    
+    $scope.Whatusertype = function(x){
+        if (x==1){
+            return 'User';
+        }else if (x==2){
+            return 'Manager';
+        }else{
+            return 'Superisor';
+        }
+    }
+
+});
+</script>
+<style>
+    body {font-size: 2em;}
+</style>
+</head>
+<body ng-app="AngApp">
+<div class="container" ng-controller="itemController" > <!--ng-init="getitems()"-->
+    <div class="row">
+        
+        <p class='pull-right'>
+        <button type='button' ng-click="Setlang('la')" class='btn btn-success btn-md '>ລາວ</button>
+        <button type='button' ng-click="Setlang('en')" class='btn btn-success btn-md '>English</button>
+        <button type='button' ng-click="Setlang('th')" class='btn btn-success btn-md '>ไทย</button>
+        <button type='button' ng-click="Tog('log')" class='btn btn-success btn-md '>{{la.pagelogin}}</button>
+        </p>
+        <h2 class="bld">Free POS v.63.2 <span class='blu'>{{shopname}}</span></h2>       
+        <div class="panel panel-default">            
+
+                <div class='row' id='log' style='display: none'>
+                    <div class="col-xs-6 ">
+                        <img src="pos02.jpg" class='img-thumbnail'>
+                    </div>
+                    <div class="col-xs-6 login-box-body pull-left">
+                        <p></p>
+                        <p></p>
+                        <div class="form-group pull-left" ng-show='!loged'>
+                            {{la.shopcode}}: <input type="text" ng-model='u.sho' class="col-xs-6 pull-right" >                  
+                          </div>
+                        <div class="form-group pull-left">
+                          {{la.user}}: <input ng-show='!loged' type="text" ng-model='u.nam' class="col-xs-6 pull-right" placeholder="Name">                  
+                        </div>                        
+                        <div class="form-group pull-left" ng-show='!loged'>
+                          {{la.password}}: <input  type="password" ng-model='u.pas' ng-keyup="Passenter($event.keyCode)" class="col-xs-6 pull-right" maxlength=4 placeholder="Password">                  
+                        </div>
+                        <div class="form-group pull-left" ng-show='loged'>
+                            <span ng-show='userty==1'>{{la.user}}</span>
+                            <span ng-show='userty==2'>{{la.manager}}</span>
+                            <span ng-show='userty==9'>Supervisor</span>
+                          </div>                  
+                    </div>
+                      <p class='text-center'>
+                        <button ng-show='!loged' type='button' ng-click='Setlog(true)' class='btn btn-success btn-md'>{{la.login}}</button>
+                        <button ng-show='loged' type='button' ng-click='Setlog(false)' class='btn btn-warning btn-md'>{{la.logout}}</button>
+                      </p>
+                </div>
+
+            <div class="panel-heading">items List <a href="javascript:void(0);" class="glyphicon glyphicon-plus" onClick="$('.formData').slideToggle();">Add</a></div>
+            <div class="panel-body none formData">
+                <form class="form col-xs-12" name="itemForm" ng-show='loged'>
+                    <div class="form-group">
+                        <table class="table table-bordered">
+                            <tr>
+                                <td width=40%><label>{{la.code}}</label></td><td><input type="text" class="form-control" name="item_code" ng-model="itemData.item_code"/></td>
+                            </tr>
+                            <tr>
+                                <td><label>{{la.name}}</label></td><td><input type="text" class="form-control" name="item_name" ng-model="itemData.item_name"/></td>
+                            </tr>
+                            <tr>
+                                <td><label>{{la.price}}</label></td><td><input type="text" class="form-control" name="item_price" ng-model="itemData.item_price"/></td>
+                            </tr>
+                        </table>                        
+                        
+                    </div>
+                    <a href="javascript:void(0);" class="btn btn-default" onClick="$('.formData').slideUp();">Reset</a>
+                    <a href="javascript:void(0);" class="btn btn-default" ng-hide="itemData.item_id" ng-click="additem()">Submit</a>
+                    <a href="javascript:void(0);" class="btn btn-default" ng-hide="!itemData.item_id" ng-click="updateitem()">Update</a>
+                </form>
+            </div>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th width="10%" class='cen'>#</th>
+                    <th width="15%" class='cen'>{{la.code}}</th>
+                    <th width="15%" class='cen'>{{la.code}}2</th>
+                    <th width="30%" class='cen'>{{la.name}}</th>
+                    <th width="20%" class='cen'>{{la.price}}</th>
+                    <th width="20%" class='cen'>{{la.saleprice2}}</th>
+                    <th></th>
+                </tr>
+                <tr ng-repeat="item in items | orderBy:'-add_date'">
+                    <td>{{$index + 1}}</td>
+                    <td>{{item.item_code}}</td>
+                    <td>{{item.item_code2}}</td>
+                    <td>{{item.item_name}}</td>
+                    <td>{{item.item_price}}</td>
+                    <td>{{item.item_price2}}</td>
+                    <td>
+                        <a href="javascript:void(0);" ng-click="edititem(item)">update</a>
+                        <a href="javascript:void(0);" ng-click="deleteitem(item)">delete</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

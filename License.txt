@@ -1,0 +1,22 @@
+LICENSE
+---------
+Copyright (c) 2016 - jsonworld.com, all rights reserved
+
+==============================================================================================
+				JSONWORLD.COM.
+==============================================================================================
+
+
+jsonWorld.com is the a Programming blog for latest technologies like nodejs,angular,react and databases. Our aim is to provide the easiest understaing on any topic with detailed description and downloaded zip.All the available tutorials, scripts and demos here are free to use for personal and non-commercial purpose. Don't re-publish our scripts, demos or downloaded ZIP file in any manner.
+
+
+
+IMPORTANT - READ CAREFULLY: This jsonworld.com Software License Agreement ("SLA") is a legal 
+agreement between you (an individual developer or a company of software applications) and jsonworld.com 
+for the source code accompanying this SLA, which includes all associated source 
+code, media and "on-line" or electronic documentation ("SOFTWARE LIBRARY"). By cloning, copying, or 
+otherwise using the SOFTWARE LIBRARY, you agree to be bound by the terms of this SLA. If you do not 
+agree to the terms of this SLA, do not install, use, distribute in any manner, or replicate in any 
+manner, any part, file or portion of the SOFTWARE LIBRARY
+
+
